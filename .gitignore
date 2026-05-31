@@ -1,0 +1,16 @@
+# Fichiers objets et exécutables
+*.o
+ft_script
+
+# Fichiers de log et de test générés
+typescript
+test*
+
+# Répertoires de build
+obj/
+libft/*.o
+libft/libft.a
+
+# Fichiers temporaires
+*~
+.DS_Store
