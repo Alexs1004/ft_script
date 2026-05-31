@@ -45,3 +45,35 @@ void print_start_message(t_script *env)
     ft_putstr_fd("Script started on ", env->fd_out);
     ft_putstr_fd(time_str, env->fd_out);
 }
+
+void print_end_message(t_script *env)
+{
+    time_t      rawtime;
+    char        *time_str;
+
+    time(&rawtime);
+    time_str = ctime(&rawtime);
+
+    if (!env->opt_q)
+    {
+        ft_putstr_fd("Script done, file is ", 1);
+        ft_putendl_fd(env->filename, 1);
+    }
+
+    ft_putstr_fd("Script done on ", env->fd_out);
+    ft_putstr_fd(time_str, env->fd_out);
+} 
+
+// Cherche "SHELL=" dans l'environnement. Retourne /bin/sh par défaut.
+char *get_shell(char **envp)
+{
+    int i = 0;
+
+    while (envp && envp[i])
+    {
+        if (ft_strncmp(envp[i], "SHELL=", 6) == 0)
+            return (&envp[i][6]); // Retourne ce qu'il y a juste après "SHELL="
+        i++;
+    }
+    return ("/bin/sh"); // Fallback de sécurité
+}

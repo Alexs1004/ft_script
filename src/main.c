@@ -9,7 +9,7 @@ void init_env(t_script *env)
     env->fd_out = -1;
 }
 
-// Parsing rudimentaire (à adapter selon tes besoins exacts)
+// Parsing rudimentaire
 int parse_args(int ac, char **av, t_script *env)
 {
     int i = 1;
@@ -18,7 +18,6 @@ int parse_args(int ac, char **av, t_script *env)
     {
         if (av[i][0] == '-')
         {
-            // Vérification des flags
             if (ft_strncmp(av[i], "-a", 3) == 0)
                 env->opt_a = 1;
             else if (ft_strncmp(av[i], "-q", 3) == 0)
@@ -26,12 +25,11 @@ int parse_args(int ac, char **av, t_script *env)
             else
             {
                 ft_putstr_fd("ft_script: invalid option\n", 2);
-                return (1); // Retour d'erreur propre
+                return (1);
             }
         }
         else
         {
-            // Si ce n'est pas une option, c'est le fichier cible
             env->filename = av[i];
         }
         i++;
@@ -39,7 +37,7 @@ int parse_args(int ac, char **av, t_script *env)
     return (0);
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **envp)
 {
     t_script env;
 
@@ -53,12 +51,48 @@ int main(int ac, char **av)
         
     print_start_message(&env);
 
-    // TODO: Étape 2 - Ouverture du PTY master / slave
-    // TODO: Étape 3 - Sauvegarde et mode RAW du terminal
-    // TODO: Étape 4 - Fork et exécution du shell
-    // ...
+    if (init_pty(&env) != 0)
+    {
+        close(env.fd_out);
+        return (1);
+    }
 
-    // Fin temporaire pour tester ton étape 1
+    sync_window_size(&env);
+
+    if (save_and_set_raw_mode(&env) != 0)
+    {
+        close(env.fd_master);
+        close(env.fd_slave);
+        close(env.fd_out);
+        return (1);
+    }
+
+    if (run_shell(&env, envp) != 0)
+    {
+        restore_terminal(&env);
+        close(env.fd_master);
+        close(env.fd_slave);
+        close(env.fd_out);
+        return (1);
+    }
+
+    // =========================================================
+    // Étape 5 - Multiplexage : Le pont est activé !
+    // =========================================================
+    multiplex_io(&env);
+
+    // Si on sort de multiplex_io, c'est que le shell est terminé.
+    // On attend proprement le processus enfant pour éviter les zombies
+    waitpid(env.child_pid, NULL, 0);
+
+    // =========================================================
+    // Nettoyage final et message de fin
+    // =========================================================
+    restore_terminal(&env);
+    print_end_message(&env);
+
+    close(env.fd_master);
     close(env.fd_out);
+    
     return (0);
 }

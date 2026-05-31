@@ -12,7 +12,9 @@ SRCS        = $(SRC_DIR)/main.c \
               $(SRC_DIR)/pty.c \
               $(SRC_DIR)/terminal.c \
               $(SRC_DIR)/multiplex.c \
-              $(SRC_DIR)/utils.c
+              $(SRC_DIR)/utils.c \
+			  $(SRC_DIR)/exec.c \
+			  $(SRC_DIR)/signal.c
 
 OBJS        = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
