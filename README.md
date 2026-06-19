@@ -26,7 +26,7 @@ Building a bridge between a user's terminal and a background shell requires orch
 Ensure you have `make` and a standard C compiler (`cc`/`gcc`) installed.
 
 ```bash
-git clone [https://github.com/Alexs1004/ft_script.git](https://github.com/Alexs1004/ft_script.git)
+git clone https://github.com/Alexs1004/ft_script.git
 cd ft_script
 make
 
